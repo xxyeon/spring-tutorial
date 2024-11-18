@@ -2,6 +2,8 @@ package com.example.demo.controller;
 
 import com.example.demo.controller.dto.UserCreateRequestDto;
 import com.example.demo.controller.dto.UserResponseDto;
+import com.example.demo.service.User;
+import com.example.demo.service.UserJdbcApiDao;
 import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLException;
 import java.util.List;
 
 @Controller
@@ -19,12 +22,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class UserController {
-    UserService userService;
+    UserJdbcApiDao userService;
 
     @GetMapping("")
-    public ResponseEntity<List<UserResponseDto>> users() {
+    public ResponseEntity<List<User>> users() {
         try {
-            List<UserResponseDto> users = userService.findAll();
+            List<User> users = userService.findAll();
             return ResponseEntity
 //                  .status(HttpStatusCode.valueOf(200))
                     .status(HttpStatus.OK)      // 1. HTTP Status Code
@@ -34,10 +37,12 @@ public class UserController {
 //                  .status(HttpStatusCode.valueOf(404))
                     .status(HttpStatus.NOT_FOUND)
                     .body(null);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
-//    @GetMapping("/{id}")
+    /*@GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> user(@PathVariable Integer id) {
         try {
             UserResponseDto user = userService.findById(id);
@@ -51,12 +56,12 @@ public class UserController {
                     .status(HttpStatus.NOT_FOUND)
                     .body(null);
         }
-    }
+    }*/
 
     @PostMapping("")
     @ResponseBody
-    public ResponseEntity<UserResponseDto> save(@RequestBody @Valid UserCreateRequestDto request) {
-        UserResponseDto user = userService.save(request.getName(), request.getAge(), request.getJob(), request.getSpecialty());
+    public ResponseEntity<User> save(@RequestBody @Valid UserCreateRequestDto request) throws SQLException {
+        User user = userService.save(request.getName(), request.getAge(), request.getJob(), request.getSpecialty());
         return ResponseEntity
 //              .status(HttpStatusCode.valueOf(201))
                 .status(HttpStatus.CREATED) // 1. HTTP Status Code
