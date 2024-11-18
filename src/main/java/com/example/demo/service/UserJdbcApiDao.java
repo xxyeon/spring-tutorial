@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import java.time.ZoneId;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class UserJdbcApiDao {
     @Value("${spring.datasource.url}")
     private String url;
@@ -23,21 +25,15 @@ public class UserJdbcApiDao {
     private String password;
     @Value("${spring.datasource.driver-class-name}")
     private String driver;
-    private DataSource dataSource() {
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(url);
-        config.setUsername(username);
-        config.setPassword(password);
-        config.setDriverClassName(driver);
-        HikariDataSource hikariDataSource = new HikariDataSource(config);
-        return hikariDataSource;
-    }
+
+    private final DataSource dataSource;
+
     public User findById(int userId) throws SQLException {
         Connection connection = null;   // 1
         Statement statement = null;     // 2
         ResultSet resultSet = null;     // 3
         try {
-            connection = dataSource().getConnection(); // 1 pool에서 커넥션을 가져오므로 url, username, password를 매번 넣지 않아도됨
+            connection = dataSource.getConnection(); // 1 pool에서 커넥션을 가져오므로 url, username, password를 매번 넣지 않아도됨
             statement = connection.createStatement();   // 2
             resultSet = statement.executeQuery(         // 3
                     "SELECT * FROM \"user\" WHERE id = " + userId //쿼리 결과가 resultSet에 담김
