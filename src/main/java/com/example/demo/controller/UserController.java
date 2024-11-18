@@ -4,6 +4,7 @@ import com.example.demo.controller.dto.UserCreateRequestDto;
 import com.example.demo.controller.dto.UserResponseDto;
 import com.example.demo.service.User;
 import com.example.demo.service.UserJdbcApiDao;
+import com.example.demo.service.UserJdbcTemplateDao;
 import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -22,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class UserController {
-    UserJdbcApiDao userService;
+    UserJdbcTemplateDao userService;
 
     @GetMapping("")
     public ResponseEntity<List<User>> users() {
@@ -37,8 +38,6 @@ public class UserController {
 //                  .status(HttpStatusCode.valueOf(404))
                     .status(HttpStatus.NOT_FOUND)
                     .body(null);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -55,8 +54,6 @@ public class UserController {
 //                  .status(HttpStatusCode.valueOf(404))
                     .status(HttpStatus.NOT_FOUND)
                     .body(null);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
