@@ -42,10 +42,10 @@ public class UserController {
         }
     }
 
-    /*@GetMapping("/{id}")
-    public ResponseEntity<UserResponseDto> user(@PathVariable Integer id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<User> user(@PathVariable Integer id) {
         try {
-            UserResponseDto user = userService.findById(id);
+            User user = userService.findById(id);
             return ResponseEntity
 //                  .status(HttpStatusCode.valueOf(200))
                     .status(HttpStatus.OK)      // 1. HTTP Status Code
@@ -55,8 +55,10 @@ public class UserController {
 //                  .status(HttpStatusCode.valueOf(404))
                     .status(HttpStatus.NOT_FOUND)
                     .body(null);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-    }*/
+    }
 
     @PostMapping("")
     @ResponseBody

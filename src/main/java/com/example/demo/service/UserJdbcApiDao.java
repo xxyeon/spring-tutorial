@@ -37,9 +37,12 @@ public class UserJdbcApiDao {
             int executedNumberOfQuery = statement.executeUpdate();
             // (B) SELECT id - MySQL:last_insert_id()->id / PostgresQL:currval()->lastval/lastval()->lastval
             statement = connection.prepareStatement(    // (B)-2:Statement
-                    "SELECT lastval()"
+                    "SELECT lastval()" //INDENTITY이면 디비에 id 채번
             );
             resultSet = statement.executeQuery();       // (B)-3:ResultSet
+           /* resultSet = connection.createStatement().executeQuery(    // (B)-2:Statement
+                    "SELECT lastval()"
+            );*/
             Integer createdUserId = null;
             if (resultSet.next()) {
                 createdUserId = resultSet.getInt("lastval");
@@ -99,6 +102,39 @@ public class UserJdbcApiDao {
                 );
             }
             return results;
+        } catch (SQLException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "자원에 대한 접근에 문제가 있습니다.");
+        } finally {
+            // 자원반납
+            if (resultSet != null) resultSet.close();   // 1
+            if (statement != null) statement.close();   // 2
+            if (connection != null) connection.close(); // 3
+        }
+    }
+
+    public User findById(int userId) throws SQLException {
+        Connection connection = null;           // 1
+        PreparedStatement statement = null;     // 2
+        ResultSet resultSet = null;             // 3
+        try {
+            connection = dataSource.getConnection();
+            statement = connection.prepareStatement("SELECT * FROM \"user\" WHERE id = ?");
+            statement.setInt(1, userId);
+            resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return new User(
+                        resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getInt("age"),
+                        resultSet.getString("job"),
+                        resultSet.getString("specialty"),
+                        resultSet.getTimestamp("created_at")
+                                .toInstant()
+                                .atZone(ZoneId.systemDefault())
+                                .toLocalDateTime()
+                );
+            }
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 존재하지 않습니다 - id : " + userId);
         } catch (SQLException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "자원에 대한 접근에 문제가 있습니다.");
         } finally {
