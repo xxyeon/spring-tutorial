@@ -1,5 +1,6 @@
 package com.example.demo.controller.dto;
 
+import com.example.demo.service.Message;
 import com.example.demo.service.User;
 import com.fasterxml.jackson.annotation.*;
 import lombok.AccessLevel;
@@ -7,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
@@ -25,6 +27,8 @@ public class UserResponseDto {
     private LocalDateTime createdAt;
     private String address;
     private String postcode;
+    private List<MessageResponseDto> messages;
+
 
     public static UserResponseDto from(User entity) {
         return new UserResponseDto(
@@ -35,7 +39,11 @@ public class UserResponseDto {
                 entity.getSpecialty(),
                 entity.getCreatedAt(),
                 null,
+                null,
                 null
         );
+    }
+    public void setMessage(List<Message> message) {
+        message.forEach((each) -> this.messages.add(MessageResponseDto.from(each)));
     }
 }

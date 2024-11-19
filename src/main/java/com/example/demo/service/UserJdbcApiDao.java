@@ -19,12 +19,12 @@ import java.util.List;
 public class UserJdbcApiDao {
     private final DataSource dataSource;
 
-    public User save(String name, Integer age, String job, String specialty) throws SQLException {
-        Connection connection = null;           // 1
+    public User save(Connection connection, String name, Integer age, String job, String specialty) throws SQLException {
+//        Connection connection = null;           // 1
         PreparedStatement statement = null;     // 2
         ResultSet resultSet = null;             // 3
         try {
-            connection = dataSource.getConnection();    // 1
+//            connection = dataSource.getConnection();    // 1
             // (A) INSERT USER
             statement = connection.prepareStatement(    // (A)-2:Statement
                     "INSERT INTO \"user\" (name, age, job, specialty, created_at) VALUES (?, ?, ?, ?, ?)"
@@ -73,7 +73,7 @@ public class UserJdbcApiDao {
             // 자원반납
             if (resultSet != null) resultSet.close();   // 1
             if (statement != null) statement.close();   // 2
-            if (connection != null) connection.close(); // 3
+//            if (connection != null) connection.close(); // 3
         }
 
     }

@@ -23,12 +23,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class UserController {
-    UserJdbcTemplateDao userService;
+    UserService userService;
 
     @GetMapping("")
-    public ResponseEntity<List<User>> users() {
+    public ResponseEntity<List<UserResponseDto>> users() {
         try {
-            List<User> users = userService.findAll();
+            List<UserResponseDto> users = userService.findAll();
             return ResponseEntity
 //                  .status(HttpStatusCode.valueOf(200))
                     .status(HttpStatus.OK)      // 1. HTTP Status Code
@@ -42,9 +42,9 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> user(@PathVariable Integer id) {
+    public ResponseEntity<UserResponseDto> user(@PathVariable Integer id) {
         try {
-            User user = userService.findById(id);
+            UserResponseDto user = userService.findById(id);
             return ResponseEntity
 //                  .status(HttpStatusCode.valueOf(200))
                     .status(HttpStatus.OK)      // 1. HTTP Status Code
@@ -59,8 +59,8 @@ public class UserController {
 
     @PostMapping("")
     @ResponseBody
-    public ResponseEntity<User> save(@RequestBody @Valid UserCreateRequestDto request) throws SQLException {
-        User user = userService.save(request.getName(), request.getAge(), request.getJob(), request.getSpecialty());
+    public ResponseEntity<UserResponseDto> save(@RequestBody @Valid UserCreateRequestDto request) throws SQLException {
+        UserResponseDto user = userService.save(request.getName(), request.getAge(), request.getJob(), request.getSpecialty());
         return ResponseEntity
 //              .status(HttpStatusCode.valueOf(201))
                 .status(HttpStatus.CREATED) // 1. HTTP Status Code
