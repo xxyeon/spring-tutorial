@@ -18,7 +18,9 @@ public class MessageJdbcApiDoa {
     private final DataSource dataSource;
 
     public Message save(Integer userId, String message) throws SQLException {
-
+        if(true) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "메시지를 저장하는데 문제가 발생했습니다");
+        }
         Connection connection = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
