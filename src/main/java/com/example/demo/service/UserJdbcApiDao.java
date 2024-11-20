@@ -4,6 +4,7 @@ package com.example.demo.service;
 import com.example.demo.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -49,12 +50,12 @@ public class UserJdbcApiDao {
             if (statement != null) statement.close();
         }
     }
-    public User save(final Connection connection, User user) throws SQLException {
-//        Connection connection = null;
+    public User save(User user) throws SQLException {
+        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-//            connection = dataSource.getConnection();
+            connection = DataSourceUtils.getConnection(dataSource);
             statement = connection.prepareStatement(
                     "INSERT INTO \"user\" (username, password) VALUES (?, ?)"
             );

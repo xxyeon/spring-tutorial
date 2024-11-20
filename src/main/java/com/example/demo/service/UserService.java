@@ -7,7 +7,9 @@ import com.example.demo.domain.Message;
 import com.example.demo.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.sql.DataSource;
@@ -30,14 +32,15 @@ public class UserService {
     }
 
     public UserResponseDto save(UserRequestDto dto) throws SQLException {
-        Connection connection = null; //final Connection connection = dataSource.getConnection();?
-        //null로 하는 이유 나중에 finally에서 자원 수거할때 null인지확인하기 위햬?
+        //TransactionSynchronizationManager 로 커넥션을 담아놓은 냉장고 생성 후 거기서 꺼내 사용
+        TransactionSynchronizationManager.initSynchronization();
+        Connection connection = DataSourceUtils.getConnection(dataSource); // dataSource를 사용해서 생성한 커넥션 사용
         try {
-            connection = dataSource.getConnection(); //connection이 생성되징 않을 경우 어떤 오류를 잡아야하나? SQLException?
+
             connection.setAutoCommit(false); //auto commit false로 해주
-            User user = userRepository.save(connection, UserRequestDto.of(dto));
+            User user = userRepository.save(UserRequestDto.of(dto));
             String message = dto.getUsername() + "님 가입을 환영합니다.";
-            Message resultMessage = messageRepository.save(connection, user.getUserId(), message);
+            Message resultMessage = messageRepository.save(user.getUserId(), message);
             connection.commit();
 
             UserResponseDto result = UserResponseDto.from(user);
@@ -52,10 +55,7 @@ public class UserService {
             }
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "자원 반납 시 문제가 있습니다.");
         } finally {
-            try {
-                if (connection != null) connection.close();
-            } catch (final SQLException ignored) {
-            }
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
