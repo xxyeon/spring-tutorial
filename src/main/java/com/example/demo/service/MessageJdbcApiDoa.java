@@ -17,15 +17,15 @@ import java.time.ZoneId;
 public class MessageJdbcApiDoa {
     private final DataSource dataSource;
 
-    public Message save(Integer userId, String message) throws SQLException {
+    public Message save(final Connection connection, Integer userId, String message) throws SQLException {
         if(true) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "메시지를 저장하는데 문제가 발생했습니다");
         }
-        Connection connection = null;
+//        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-            connection = dataSource.getConnection();
+//            connection = dataSource.getConnection();
             statement = connection.prepareStatement(
                     "INSERT INTO \"message\" (message, create_at, user_id) VALUES(?, ?, ?)"
             );

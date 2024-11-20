@@ -49,12 +49,12 @@ public class UserJdbcApiDao {
             if (statement != null) statement.close();
         }
     }
-    public User save(User user) throws SQLException {
-        Connection connection = null;
+    public User save(final Connection connection, User user) throws SQLException {
+//        Connection connection = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-            connection = dataSource.getConnection();
+//            connection = dataSource.getConnection();
             statement = connection.prepareStatement(
                     "INSERT INTO \"user\" (username, password) VALUES (?, ?)"
             );
