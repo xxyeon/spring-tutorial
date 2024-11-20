@@ -7,13 +7,15 @@ import com.example.demo.domain.Message;
 import com.example.demo.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,49 +24,43 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserJdbcApiDao userRepository;
-    private final MessageJdbcApiDoa messageRepository;
+    private final UserJdbcTemplateDao userRepository;
+    private final MessageJdbcTemplateDao messageRepository;
     private final DataSource dataSource;
 
-    public UserResponseDto findById(Integer userId) throws SQLException {
+    public UserResponseDto findById(Integer userId) {
         User user = userRepository.findById(userId);
         return UserResponseDto.from(user);
     }
 
-    public UserResponseDto save(UserRequestDto dto) throws SQLException {
-        //TransactionSynchronizationManager 로 커넥션을 담아놓은 냉장고 생성 후 거기서 꺼내 사용
-        TransactionSynchronizationManager.initSynchronization();
-        Connection connection = DataSourceUtils.getConnection(dataSource); // dataSource를 사용해서 생성한 커넥션 사용
-        try {
+    public UserResponseDto save(UserRequestDto dto) {
+        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource); //빈으로 주입하지 않고 직접 주입
+        TransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
+        TransactionStatus status = transactionManager.getTransaction(transactionDefinition);
 
-            connection.setAutoCommit(false); //auto commit false로 해주
+        try {
             User user = userRepository.save(UserRequestDto.of(dto));
             String message = dto.getUsername() + "님 가입을 환영합니다.";
             Message resultMessage = messageRepository.save(user.getUserId(), message);
-            connection.commit();
+            transactionManager.commit(status);
 
             UserResponseDto result = UserResponseDto.from(user);
             List<MessageResponseDto> messageList = new ArrayList<>();
             messageList.add(MessageResponseDto.from(resultMessage));
             result.setMessage(messageList);
             return result;
-        } catch (SQLException e) { //ResponseException이 SQLException에 포함되는가?
-            try {
-                connection.rollback(); //rollback이 실패하는 원인에는 뭐가 있는가?
-            } catch (final SQLException ignored) { //final로 해주는 이유는?
-            }
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "자원 반납 시 문제가 있습니다.");
-        } finally {
-            DataSourceUtils.releaseConnection(connection, dataSource);
+        } catch (Exception e) {
+            transactionManager.rollback(status);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "트랜잭션 실패");
         }
     }
 
-    public UserResponseDto update(Integer userId, UserRequestDto userDto) throws SQLException {
+    public UserResponseDto update(Integer userId, UserRequestDto userDto) {
         User user = userRepository.update(userId, UserRequestDto.of(userDto));
         return UserResponseDto.from(user);
     }
 
-    public void deleteById(Integer userId) throws SQLException {
+    public void deleteById(Integer userId) {
         userRepository.delete(userId);
     }
 

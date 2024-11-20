@@ -15,7 +15,7 @@ import java.time.ZoneId;
 
 @Repository
 @RequiredArgsConstructor
-public class MessageJdbcApiDoa {
+public class MessageJdbcApiDao {
     private final DataSource dataSource;
 
     public Message save(Integer userId, String message) throws SQLException {

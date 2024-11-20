@@ -30,15 +30,25 @@ public class UserJdbcTemplateDao {
         );
     }
 
-    public Integer save(User user) {
+    public User save(User user) {
         String query = "INSERT INTO \"user\" (username, password) VALUES (?, ?)";
         //update(query, param)
         this.jdbcTemplate.update(query, user.getUsername(), user.getPassword()); //쿼
         String lastInsertQuery = "SELECT lastval()"; //insert한 후 db가 채번한 id를 받기위함
         //lastVal() 로 db가 채번해준 id 갸져와서 user 객체에 세팅 후 결과로 반환
-        return this.jdbcTemplate.queryForObject(
+        Integer createdUserId =  this.jdbcTemplate.queryForObject(
                 lastInsertQuery,
                 Integer.class //반환값을 설정하기 위해서 설정했습니다 네네 아하넵
+        );
+        String findUserQuery = "SELECT * FROM \"user\" WHERE user_id = ?";
+        return this.jdbcTemplate.queryForObject(
+                findUserQuery,
+                (resultSet, rowNum) -> new User(
+                        resultSet.getInt("user_id"),
+                        resultSet.getString("username"),
+                        resultSet.getString("password")
+                ),
+                createdUserId
         );
     }
 
