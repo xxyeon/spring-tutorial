@@ -5,34 +5,26 @@ import com.example.demo.controller.dto.UserRequestDto;
 import com.example.demo.controller.dto.UserResponseDto;
 import com.example.demo.domain.Message;
 import com.example.demo.domain.User;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-import org.springframework.web.server.ResponseStatusException;
-
-import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
-public class UserService implements IUserService{
+@NoArgsConstructor //클래스 기반 프록시를 생성하는 CGLIB 는 타켓 클래스에 기본 생성자가 있어야함
+@AllArgsConstructor
+public class UserService {
 
-    private final UserJdbcTemplateDao userRepository;
-    private final MessageJdbcTemplateDao messageRepository;
+    private UserJdbcTemplateDao userRepository;
+    private MessageJdbcTemplateDao messageRepository;
 
     public UserResponseDto findById(Integer userId) {
         User user = userRepository.findById(userId);
         return UserResponseDto.from(user);
     }
 
-    @Override
     public List<UserResponseDto> findAll() {
         List<User> userList = userRepository.findAll();
         List<UserResponseDto> result = userList.stream().map(UserResponseDto::from).toList();
