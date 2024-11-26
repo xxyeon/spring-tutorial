@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.domain.User;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -13,6 +14,17 @@ public class UserJdbcTemplateDao {
 
     //단일 조회: jdbcTemplate.queryForObject
     //다수 조회: jdbcTemplate.queryForStream
+
+    public List<User> findAll() {
+        String query = "SELECT * FROM \"user\"";
+        return this.jdbcTemplate.queryForStream(
+                query,
+                (resultSet, rowNum) -> new User(
+                        resultSet.getInt("user_id"),
+                        resultSet.getString("username"),
+                        resultSet.getString("password")
+                )).toList();
+    }
     public User findById(Integer userId) {
         //query
         String query = "SELECT * FROM \"user\" WHERE user_id = ?"; //먼저 쿼리로 어떤 유저 조회할지 쿼리 작성하고

@@ -38,7 +38,7 @@ public class MessageJdbcTemplateDao {
                                 .toInstant()
                                 .atZone(ZoneId.systemDefault())
                                 .toLocalDateTime(),
-                        resultSet.getInt("member_id")
+                        resultSet.getInt("user_id")
                 ),
                 getMessageId
 

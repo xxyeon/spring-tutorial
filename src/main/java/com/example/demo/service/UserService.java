@@ -22,37 +22,35 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements IUserService{
 
     private final UserJdbcTemplateDao userRepository;
     private final MessageJdbcTemplateDao messageRepository;
-    private final DataSource dataSource;
 
     public UserResponseDto findById(Integer userId) {
         User user = userRepository.findById(userId);
         return UserResponseDto.from(user);
     }
 
+    @Override
+    public List<UserResponseDto> findAll() {
+        List<User> userList = userRepository.findAll();
+        List<UserResponseDto> result = userList.stream().map(UserResponseDto::from).toList();
+        return result;
+    }
+
     public UserResponseDto save(UserRequestDto dto) {
-        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource); //빈으로 주입하지 않고 직접 주입
-        TransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
-        TransactionStatus status = transactionManager.getTransaction(transactionDefinition);
 
-        try {
-            User user = userRepository.save(UserRequestDto.of(dto));
-            String message = dto.getUsername() + "님 가입을 환영합니다.";
-            Message resultMessage = messageRepository.save(user.getUserId(), message);
-            transactionManager.commit(status);
+        User user = userRepository.save(UserRequestDto.of(dto));
+        String message = dto.getUsername() + "님 가입을 환영합니다.";
+        Message resultMessage = messageRepository.save(user.getUserId(), message);
 
-            UserResponseDto result = UserResponseDto.from(user);
-            List<MessageResponseDto> messageList = new ArrayList<>();
-            messageList.add(MessageResponseDto.from(resultMessage));
-            result.setMessage(messageList);
-            return result;
-        } catch (Exception e) {
-            transactionManager.rollback(status);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "트랜잭션 실패");
-        }
+        UserResponseDto result = UserResponseDto.from(user);
+        List<MessageResponseDto> messageList = new ArrayList<>();
+        messageList.add(MessageResponseDto.from(resultMessage));
+        result.setMessage(messageList);
+        return result;
+
     }
 
     public UserResponseDto update(Integer userId, UserRequestDto userDto) {
