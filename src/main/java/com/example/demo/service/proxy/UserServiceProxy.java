@@ -51,7 +51,6 @@ public class UserServiceProxy implements IUserService {
         TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
         try {
             UserResponseDto result = userService.save(dto);
-            M
             transactionManager.commit(status);
             return result;
         } catch (Exception e) {

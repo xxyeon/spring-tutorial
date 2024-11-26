@@ -16,35 +16,35 @@ import java.sql.SQLException;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
-    private final IUserService userServiceProxy;
+    private final IUserService userServiceJdkProxy;
 
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> findAll() throws SQLException {
-        List<UserResponseDto> result = userServiceProxy.findAll();
+        List<UserResponseDto> result = userServiceJdkProxy.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
     //crud
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponseDto> findById(@PathVariable Integer userId) throws SQLException {
-        UserResponseDto result = userServiceProxy.findById(userId);
+        UserResponseDto result = userServiceJdkProxy.findById(userId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @PostMapping
     public ResponseEntity<UserResponseDto> save(@RequestBody UserRequestDto userDto) throws SQLException {
-        UserResponseDto user = userServiceProxy.save(userDto);
+        UserResponseDto user = userServiceJdkProxy.save(userDto);
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
     @PatchMapping("/{userId}")
     public ResponseEntity<UserResponseDto> update(@PathVariable Integer userId, @RequestBody UserRequestDto userDto) throws SQLException {
-        UserResponseDto user = userServiceProxy.update(userId, userDto);
+        UserResponseDto user = userServiceJdkProxy.update(userId, userDto);
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
     @DeleteMapping ("/{userId}")
     public ResponseEntity<String> delete(@PathVariable Integer userId) throws SQLException {
-        userServiceProxy.deleteById(userId);
+        userServiceJdkProxy.deleteById(userId);
         return ResponseEntity.status(HttpStatus.OK).body("success");
     }
 }
