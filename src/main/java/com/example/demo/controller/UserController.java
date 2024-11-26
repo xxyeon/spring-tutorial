@@ -15,35 +15,35 @@ import java.sql.SQLException;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserService userServiceCglibProxy;
+    private final UserService userService; //ProxyFactory 빈으로 주입된 UserService DI
 
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> findAll() throws SQLException {
-        List<UserResponseDto> result = userServiceCglibProxy.findAll();
+        List<UserResponseDto> result = userService.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
     //crud
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponseDto> findById(@PathVariable Integer userId) throws SQLException {
-        UserResponseDto result = userServiceCglibProxy.findById(userId);
+        UserResponseDto result = userService.findById(userId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @PostMapping
     public ResponseEntity<UserResponseDto> save(@RequestBody UserRequestDto userDto) throws SQLException {
-        UserResponseDto user = userServiceCglibProxy.save(userDto);
+        UserResponseDto user = userService.save(userDto);
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
     @PatchMapping("/{userId}")
     public ResponseEntity<UserResponseDto> update(@PathVariable Integer userId, @RequestBody UserRequestDto userDto) throws SQLException {
-        UserResponseDto user = userServiceCglibProxy.update(userId, userDto);
+        UserResponseDto user = userService.update(userId, userDto);
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
     @DeleteMapping ("/{userId}")
     public ResponseEntity<String> delete(@PathVariable Integer userId) throws SQLException {
-        userServiceCglibProxy.deleteById(userId);
+        userService.deleteById(userId);
         return ResponseEntity.status(HttpStatus.OK).body("success");
     }
 }

@@ -14,14 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@NoArgsConstructor //클래스 기반 프록시를 생성하는 CGLIB 는 타켓 클래스에 기본 생성자가 있어야함
-//@AllArgsConstructor
-public class UserService {
+@RequiredArgsConstructor //클래스 기반 프록시를 생성하는 CGLIB 는 타켓 클래스에 기본 생성자가 있어야함
+ public class UserService {
 
-    @Autowired
-    private UserJdbcTemplateDao userRepository;
-    @Autowired
-    private MessageJdbcTemplateDao messageRepository;
+    private final UserJdbcTemplateDao userRepository;
+    private final MessageJdbcTemplateDao messageRepository;
 
     public UserResponseDto findById(Integer userId) {
         User user = userRepository.findById(userId);
