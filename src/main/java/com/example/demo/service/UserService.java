@@ -8,16 +8,19 @@ import com.example.demo.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @NoArgsConstructor //클래스 기반 프록시를 생성하는 CGLIB 는 타켓 클래스에 기본 생성자가 있어야함
-@AllArgsConstructor
+//@AllArgsConstructor
 public class UserService {
 
+    @Autowired
     private UserJdbcTemplateDao userRepository;
+    @Autowired
     private MessageJdbcTemplateDao messageRepository;
 
     public UserResponseDto findById(Integer userId) {
